@@ -64,8 +64,11 @@ assert.match(css, /\.story-mode \.event-node\.story-muted/, "non-current story e
 assert.match(css, /\.intro-card \{\n[\s\S]*?max-height: calc\(100dvh - 48px\);/, "intro card should stay inside short desktop and mobile viewports");
 assert.match(css, /\.intro-modal:not\(\[hidden\]\) ~ \.timeline-ruler/, "intro modal should hide the background timeline to avoid visual overlap");
 assert.match(css, /grid-template-columns: 42px 1fr 1fr 42px/, "mobile story dock should reserve stable icon button columns");
+assert.match(css, /grid-template-columns: var\(--button-icon-pc\) minmax\(92px, 1fr\) minmax\(92px, 1fr\) var\(--button-icon-pc\);/, "desktop story dock should reserve four stable columns for four icon buttons");
 assert.match(css, /grid-auto-rows: 44px;/, "mobile story dock should reserve real row height so controls cannot overlap story copy");
 assert.match(css, /min-height: 44px;/, "mobile story dock should have a real height in layout flow");
+assert.match(css, /\.story-mode \.zoom-controls \{\n[\s\S]*?display: none;/, "desktop map zoom controls should not overlap the story panel");
+assert.match(css, /#centerSelected \.desktop-label \{\n[\s\S]*?display: none;/, "center-selected control should use the same icon-only convention as nearby zoom buttons");
 assert.match(css, /max-height: min\(58dvh, 390px\)/, "mobile intro sheet should stay compact");
 assert.match(css, /env\(safe-area-inset-bottom\)/, "mobile bottom controls should respect safe-area insets");
 assert.match(css, /--mobile-bottom-clearance: calc\(var\(--mobile-browser-bottom\) \+ env\(safe-area-inset-bottom\)\)/, "mobile controls should include browser toolbar clearance and safe-area inset");

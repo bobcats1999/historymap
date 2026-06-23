@@ -19,6 +19,11 @@
   --shadow-tight: 0 8px 22px rgba(17, 16, 13, 0.16);
   --radius-small: 6px;
   --radius-panel: 8px;
+  --button-height-pc: 40px;
+  --button-height-mobile: 44px;
+  --button-icon-pc: 44px;
+  --button-icon-mobile: 42px;
+  --button-radius: 8px;
   --serif: Georgia, "Times New Roman", "Noto Serif SC", "Songti SC", serif;
   --sans: "Inter", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
 }
@@ -262,8 +267,8 @@ button {
 .global-map-controls button {
   display: inline-grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
+  width: var(--button-icon-pc);
+  height: var(--button-icon-pc);
   border: 1px solid rgba(226, 193, 106, 0.42);
   border-radius: 999px;
   background: rgba(244, 236, 210, 0.08);
@@ -792,9 +797,12 @@ option {
 
 .route-reader-actions {
   display: grid;
-  grid-template-columns: 1fr 1.1fr 1fr;
+  grid-template-columns: var(--button-icon-pc) minmax(92px, 1fr) minmax(92px, 1fr) var(--button-icon-pc);
+  grid-auto-rows: var(--button-height-pc);
   gap: 8px;
   margin-top: 14px;
+  min-height: var(--button-height-pc);
+  align-items: stretch;
 }
 
 .story-control-dock {
@@ -804,14 +812,19 @@ option {
 .story-icon-button {
   display: inline-grid;
   place-items: center;
+  width: 100%;
+  height: 100%;
   min-width: 0;
-  aspect-ratio: 1;
+  min-height: var(--button-height-pc);
+  border-radius: var(--button-radius);
   padding: 0;
-  font-size: 1.05rem;
+  font-family: var(--serif);
+  font-size: 1.08rem;
+  line-height: 1;
 }
 
 .story-icon-button.primary {
-  aspect-ratio: auto;
+  font-size: 1.02rem;
 }
 
 .route-reader-secondary {
@@ -843,12 +856,14 @@ option {
 .route-reader-secondary button,
 .route-reset,
 .intro-secondary {
-  min-height: 36px;
+  min-height: var(--button-height-pc);
   border: 1px solid rgba(115, 80, 38, 0.28);
+  border-radius: var(--button-radius);
   background: rgba(244, 236, 210, 0.1);
   color: rgba(244, 236, 210, 0.92);
   cursor: pointer;
   font-weight: 700;
+  line-height: 1;
 }
 
 .route-reader-actions [data-route-action="next"] {
@@ -1695,7 +1710,7 @@ option {
   right: 18px;
   top: 98px;
   display: grid;
-  grid-template-columns: 38px 38px minmax(62px, auto);
+  grid-template-columns: repeat(4, var(--button-height-pc));
   gap: 6px;
   padding: 8px;
   background: rgba(18, 17, 14, 0.78);
@@ -1703,12 +1718,21 @@ option {
 }
 
 .zoom-controls button {
-  min-width: 38px;
-  min-height: 36px;
+  display: inline-grid;
+  place-items: center;
+  width: var(--button-height-pc);
+  min-width: var(--button-height-pc);
+  height: var(--button-height-pc);
+  min-height: var(--button-height-pc);
   border: 1px solid rgba(226, 193, 106, 0.28);
+  border-radius: var(--button-radius);
   background: rgba(244, 236, 210, 0.08);
   color: var(--archive-panel);
   cursor: pointer;
+  font-family: var(--serif);
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .zoom-controls button:hover {
@@ -1718,11 +1742,20 @@ option {
 }
 
 #centerSelected {
-  grid-column: 1 / -1;
+  grid-column: auto;
 }
 
-.mobile-icon {
+.story-mode .zoom-controls {
   display: none;
+}
+
+#centerSelected .desktop-label {
+  display: none;
+}
+
+#centerSelected .mobile-icon {
+  display: inline-grid;
+  place-items: center;
 }
 
 .pinch-guide {
@@ -3150,8 +3183,15 @@ option {
 
   .story-panel-rail .route-reader-actions,
   .story-panel-rail .route-reader-secondary {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 6px;
+  }
+
+  .story-panel-rail .route-reader-actions {
+    grid-template-columns: var(--button-icon-pc) minmax(0, 1fr) minmax(0, 1fr) var(--button-icon-pc);
+  }
+
+  .story-panel-rail .route-reader-secondary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .story-mode.detail-open .route-reader {
