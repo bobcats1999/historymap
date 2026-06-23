@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 760" role="img" aria-labelledby="title desc">
+  <title id="title">古典雕塑半身像</title>
+  <desc id="desc">黑金色调的古典雕塑半身像插画。</desc>
+  <defs>
+    <linearGradient id="gold" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#f2cf72"/>
+      <stop offset="38%" stop-color="#c8952d"/>
+      <stop offset="100%" stop-color="#5d380d"/>
+    </linearGradient>
+    <radialGradient id="shine" cx="45%" cy="20%" r="65%">
+      <stop offset="0%" stop-color="#ffe8a4" stop-opacity=".9"/>
+      <stop offset="70%" stop-color="#b4771e" stop-opacity=".35"/>
+      <stop offset="100%" stop-color="#1a1208" stop-opacity=".25"/>
+    </radialGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="24" stdDeviation="22" flood-color="#221307" flood-opacity=".42"/>
+    </filter>
+  </defs>
+  <rect width="640" height="760" fill="none"/>
+  <g filter="url(#softShadow)">
+    <path d="M262 258c-34 33-49 82-40 145 8 58 36 98 84 119 13 35 7 72-24 112 80 35 171 35 252 2-44-36-62-77-48-124 35-33 54-81 52-142-4-102-62-175-151-189-48-8-90 13-125 77z" fill="url(#gold)"/>
+    <path d="M251 243c-39 19-67 51-86 94 28-6 52-19 71-39-8 22-9 43-3 64 15-17 29-34 41-51-7 29 1 52 24 69 12-29 18-60 18-92 18 24 39 38 65 42-8-22-18-42-30-59 32 22 67 27 105 16-16-27-38-47-66-61 31 2 58-6 82-24-34-27-72-38-115-31 17-14 29-33 36-57-48 3-86 20-113 52-4-27-18-50-43-70-18 43-13 82 14 117z" fill="#6f4311"/>
+    <path d="M258 244c-31 11-55 35-71 71 30 0 55-11 73-34-4 25 4 47 23 65 12-25 18-52 18-80 20 26 47 41 81 44-9-23-21-44-38-62 33 16 64 15 94-3-27-28-60-42-98-42 18-13 29-29 35-49-39 2-73 17-102 45-2-26-12-48-31-67-16 41-11 78 16 112z" fill="url(#shine)" opacity=".92"/>
+    <path d="M342 310c-36 12-58 45-64 97-4 34 4 62 25 84 24 25 57 31 98 18 60-19 92-70 83-152-5-47-51-66-142-47z" fill="url(#gold)"/>
+    <path d="M284 412c-21 12-39 16-55 12 13 24 31 37 53 39 7-12 8-29 2-51z" fill="#8d5a18"/>
+    <path d="M394 399c30 4 54-1 73-15-4 22-17 38-41 47-13-4-24-15-32-32z" fill="#5b370f"/>
+    <path d="M344 401c24 13 52 16 84 10-19 22-46 31-80 26-10-11-12-23-4-36z" fill="#2a1a0b" opacity=".38"/>
+    <path d="M321 509c37 33 89 35 141 4-7 32-24 57-52 75-37 3-72-6-105-27 10-15 15-32 16-52z" fill="#8d5a18"/>
+    <path d="M202 627c109 55 221 57 337 6 44 29 71 73 82 132H118c15-64 43-110 84-138z" fill="url(#gold)"/>
+    <path d="M177 679c98 31 217 32 358 3 26 20 43 48 52 83H128c9-37 25-66 49-86z" fill="#4d2f0d"/>
+  </g>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" role="img" aria-labelledby="title desc">
+  <title id="title">议会与卷轴插画</title>
+  <desc id="desc">羊皮纸色调的议会建筑、卷轴和光线纹样插画。</desc>
+  <rect width="900" height="420" fill="#e8dfbd"/>
+  <g transform="translate(116 82)">
+    <path d="M334 0 36 126h596z" fill="#c8952d"/>
+    <path d="M88 126h492v42H88z" fill="#2a1c0b"/>
+    <g fill="#6d441a">
+      <rect x="118" y="168" width="42" height="130"/>
+      <rect x="206" y="168" width="42" height="130"/>
+      <rect x="294" y="168" width="42" height="130"/>
+      <rect x="382" y="168" width="42" height="130"/>
+      <rect x="470" y="168" width="42" height="130"/>
+    </g>
+    <path d="M72 298h520v42H72z" fill="#2a1c0b"/>
+  </g>
+  <path d="M96 54c92 44 183 44 274 0M530 356c78-38 154-37 228 2" fill="none" stroke="#6d441a" stroke-width="3" stroke-opacity=".35"/>
+  <g fill="none" stroke="#c8952d" stroke-opacity=".5">
+    <path d="M780 38v122M719 99h122M736 55l88 88M824 55l-88 88"/>
+  </g>
+</svg>

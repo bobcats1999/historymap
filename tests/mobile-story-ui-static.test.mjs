@@ -1,0 +1,81 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+
+const html = readFileSync("index.html", "utf8");
+const script = readFileSync("script.js", "utf8");
+const css = readFileSync("styles.css", "utf8");
+
+assert.match(html, /id="enterFullFilter"/, "mobile story filter peek should expose an explicit full-filter action");
+assert.match(html, /story-filter-peek-actions/, "filter drawer should include a compact story-mode action area");
+assert.match(html, /id="globalMusicToggle"/, "background music toggle should be available as a global map control");
+assert.match(html, /id="globalStoryEntry"/, "mobile free exploration should expose a story shortcut in the bottom controls");
+assert.match(html, /id="globalFilterToggle"/, "mobile free exploration should expose a filter shortcut in the bottom controls");
+assert.match(html, /id="globalCenterSelected"/, "mobile free exploration should expose a return-to-selected shortcut in the bottom controls");
+assert.match(html, /id="continueIntroModal"/, "mobile entry should offer a recent-progress choice");
+assert.match(html, /intro-progress-note/, "mobile entry should explain the recent-progress state");
+assert.match(html, /filter-route-quick/, "mobile filter drawer should include a route-first quick filter tier");
+assert.match(html, /timeFocusToast/, "time range selection should have a temporary mobile feedback toast");
+assert.match(html, /id="explorePrevEvent"/, "focused event navigation should expose a previous icon button");
+assert.match(html, /id="exploreNextEvent"/, "focused event navigation should expose a next icon button");
+
+assert.match(script, /story-control-dock/, "story reader should render a persistent icon control dock");
+assert.match(script, /story-why-it-matters/, "story reader should render a why-this-matters line");
+assert.ok(
+  script.indexOf("story-control-dock") < script.indexOf("<article class=\"route-current\">"),
+  "story controls should render before the story copy so mobile users can always reach them"
+);
+assert.match(script, /continueIntroModalButton/, "recent progress entry should be wired in script");
+assert.match(script, /function syncIntroProgressEntry\(\)/, "intro progress entry should be synced from saved story progress");
+assert.match(script, /function showTimeFocusToast\(label\)/, "time filter should show a temporary feedback toast");
+assert.match(script, /window\.setTimeout\(hideTimeFocusToast, 2200\)/, "time focus feedback should auto-dismiss quickly");
+assert.match(script, /showPinchGuide\(\);/, "free exploration entry should show a one-time gesture hint");
+assert.match(script, /globalFilterToggle\?\.addEventListener\("click",/, "bottom filter shortcut should open the mobile filter drawer");
+assert.match(script, /globalStoryEntry\?\.addEventListener\("click",/, "bottom story shortcut should start or continue the story");
+assert.match(script, /globalCenterSelected\?\.addEventListener\("click", centerOnSelected\)/, "bottom return shortcut should center the current selection");
+assert.match(script, /\.global-map-controls/, "bottom shortcuts should be excluded from map drag/collapse handling");
+assert.match(script, /globalMusicToggle\?\.addEventListener\("click", toggleBackgroundMusic\)/, "global music button should control background music");
+assert.match(script, /function navigateExploreEvent\(delta\)/, "free exploration should support previous and next focused event navigation");
+assert.match(script, /function routeContextForEvent\(eventId\)/, "event navigation should derive a route context for the selected event");
+assert.match(script, /aria-label="\$\{isPlaying \? "暂停故事" : "播放故事"\}"/, "play button should have a clear accessible label");
+assert.match(script, /resolveAudioAvailability\(uiState\.audio, false\)/, "missing audio should resolve to a safe unavailable state");
+assert.match(script, /window\.fetch\(backgroundMusic\.src, \{ method: "HEAD" \}\)/, "audio availability should be detected without autoplay");
+assert.match(script, /let mobileFitPreviewTimer = null;/, "mobile fit preview should be managed by a dismiss timer");
+assert.match(script, /window\.setTimeout\(dismissMobileFitPreview, 2800\)/, "mobile fit preview notice should auto-dismiss after a short pause");
+assert.match(script, /function syncMobileViewportInsets\(\)/, "mobile browser chrome should feed a dynamic bottom inset");
+assert.match(script, /window\.visualViewport\?\.addEventListener\("resize", syncMobileViewportInsets\)/, "bottom inset should update when mobile browser chrome changes size");
+assert.match(script, /const fallbackBottom = 28;/, "mobile browser bottom fallback should avoid floating the story panel into the middle of the screen");
+
+assert.match(css, /\.story-filter-peek \.filter-drawer\.story-filter-peek-drawer/, "story filter peek should have a dedicated mobile drawer style");
+assert.match(css, /\.filter-route-quick/, "mobile filter drawer should visually prioritize route shortcuts");
+assert.match(css, /\.filter-relation-tier/, "relation chips should sit in a secondary mobile filter tier");
+assert.match(css, /\.time-focus-toast/, "time selection feedback should have a non-blocking toast style");
+assert.match(css, /\.story-why-it-matters/, "story panel should style the why-this-matters line");
+assert.match(css, /\.story-mode \.event-node\.story-current/, "current story event should have stronger cinematic emphasis");
+assert.match(css, /\.story-mode \.event-node\.story-muted/, "non-current story events should be visibly de-emphasized");
+assert.match(css, /\.intro-card \{\n[\s\S]*?max-height: calc\(100dvh - 48px\);/, "intro card should stay inside short desktop and mobile viewports");
+assert.match(css, /\.intro-modal:not\(\[hidden\]\) ~ \.timeline-ruler/, "intro modal should hide the background timeline to avoid visual overlap");
+assert.match(css, /grid-template-columns: 42px 1fr 1fr 42px/, "mobile story dock should reserve stable icon button columns");
+assert.match(css, /grid-auto-rows: 44px;/, "mobile story dock should reserve real row height so controls cannot overlap story copy");
+assert.match(css, /min-height: 44px;/, "mobile story dock should have a real height in layout flow");
+assert.match(css, /max-height: min\(58dvh, 390px\)/, "mobile intro sheet should stay compact");
+assert.match(css, /env\(safe-area-inset-bottom\)/, "mobile bottom controls should respect safe-area insets");
+assert.match(css, /--mobile-bottom-clearance: calc\(var\(--mobile-browser-bottom\) \+ env\(safe-area-inset-bottom\)\)/, "mobile controls should include browser toolbar clearance and safe-area inset");
+assert.match(css, /--mobile-browser-bottom: 28px;/, "mobile portrait should keep bottom UI near the reachable bottom area");
+assert.match(css, /bottom: calc\(10px \+ var\(--mobile-bottom-clearance\)\)/, "story controls should sit above the mobile browser address bar");
+assert.match(css, /\.global-map-controls/, "global map controls should have a dedicated floating layer");
+assert.match(css, /\.global-map-controls button\[hidden\]/, "hidden global navigation buttons should not be forced visible by button display styles");
+assert.match(css, /\.global-map-controls\[hidden\]/, "empty global control shells should not remain visible");
+assert.match(script, /globalMapControls\.hidden = !hasMobileShortcuts && !ready && !hasExploreNav;/, "global control shell should remain mobile-first without adding desktop clutter");
+assert.match(css, /\.story-mode \.route-reader \{\n[\s\S]*?grid-template-rows: auto auto auto auto auto minmax\(0, 1fr\);/, "mobile story reader should reserve fixed rows for title/progress/buttons before scrollable copy");
+assert.match(css, /\.story-panel-mini \.route-reader \{\n[\s\S]*?overflow: auto;/, "mobile story reader should scroll instead of clipping controls and text");
+assert.match(css, /\.story-panel-mini \.route-reader \{\n[\s\S]*?min-height: 306px;/, "mobile mini story panel should have enough height for controls, summary, and why-it-matters copy");
+assert.match(css, /\.story-mode \.route-current \{\n[\s\S]*?overflow: auto;/, "story text area should support vertical scrolling for lower content");
+assert.match(css, /\.story-panel-mini \.route-current \{\n[\s\S]*?overflow: hidden;/, "mobile mini story summary should not create an inner scrollbar over the text");
+assert.match(css, /\.story-panel-mini \.story-expanded-copy \{\n[\s\S]*?display: none;/, "expanded story copy should not participate in the mobile mini layout");
+assert.match(css, /\.pinch-guide \{\n[\s\S]*?place-items: end center;/, "mobile pinch guide should behave like a bottom hint instead of a blocking modal");
+assert.match(css, /\.pinch-guide \{\n[\s\S]*?pointer-events: none;/, "mobile pinch guide shell should not block the map");
+assert.match(css, /\.pinch-guide-card img \{\n[\s\S]*?display: none;/, "mobile pinch guide should not spend the first viewport on an illustration card");
+assert.match(css, /-webkit-line-clamp: 2;/, "mobile story mini summary should preserve at least two readable lines");
+assert.match(css, /\.story-mode\.detail-open \.route-reader \{\n[\s\S]*?min-height: 46px;/, "detail-open story reader should collapse into a return capsule");
+assert.match(css, /\.story-mode\.detail-open \.route-current/, "detail-open story reader should hide story copy behind the detail panel");
+assert.match(css, /\.story-mode\.route-reader-open \.global-map-controls \{\n[\s\S]*?display: none;/, "story mode should not float global map controls above the story sheet");

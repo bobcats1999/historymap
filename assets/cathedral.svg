@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" role="img" aria-labelledby="title desc">
+  <title id="title">教堂穹顶插画</title>
+  <desc id="desc">黑金风格的教堂穹顶与拱窗插画。</desc>
+  <rect width="900" height="420" fill="#e8dfbd"/>
+  <path d="M0 338h900v82H0z" fill="#2a1c0b"/>
+  <path d="M452 45c-71 50-113 116-126 198h252C565 161 523 95 452 45z" fill="#c8952d"/>
+  <path d="M344 244h216v94H344z" fill="#6d441a"/>
+  <path d="M398 338V236c0-34 23-62 52-62s52 28 52 62v102z" fill="#1a1208"/>
+  <path d="M212 338V186c0-33 24-60 54-60s54 27 54 60v152zM584 338V186c0-33 24-60 54-60s54 27 54 60v152z" fill="#8e641d"/>
+  <g fill="none" stroke="#1a1208" stroke-width="8" opacity=".55">
+    <path d="M452 45v-33M431 20h42"/>
+    <path d="M212 186h108M584 186h108"/>
+  </g>
+  <g stroke="#c8952d" stroke-opacity=".55">
+    <path d="M54 62h792M54 92h792M54 122h792" />
+  </g>
+</svg>

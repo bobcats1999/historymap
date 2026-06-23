@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" role="img" aria-labelledby="title desc">
+  <title id="title">旧地图纹理</title>
+  <desc id="desc">泛黄羊皮纸、航线与罗盘纹样组成的历史地图插画。</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f0e5bd"/>
+      <stop offset=".62" stop-color="#d2b76b"/>
+      <stop offset="1" stop-color="#8c5e1a"/>
+    </linearGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0v48" fill="none" stroke="#6d441a" stroke-opacity=".16"/>
+    </pattern>
+  </defs>
+  <rect width="900" height="420" fill="url(#paper)"/>
+  <rect width="900" height="420" fill="url(#grid)"/>
+  <path d="M70 286C198 176 260 253 341 151c70-88 179-59 230 8 74 98 148 79 265 17" fill="none" stroke="#2b1b0a" stroke-width="2" stroke-opacity=".34" stroke-dasharray="9 10"/>
+  <path d="M145 155c50-33 101-36 153-8 36 20 83 16 141-11 87-41 168-15 241 77" fill="none" stroke="#6d441a" stroke-width="3" stroke-opacity=".28"/>
+  <g transform="translate(736 94)" fill="none" stroke="#6d441a" stroke-opacity=".55">
+    <circle r="62" stroke-width="3"/>
+    <circle r="42"/>
+    <path d="M0-76V76M-76 0H76M-54-54L54 54M54-54L-54 54"/>
+    <path d="M0-62 14-14 62 0 14 14 0 62-14 14-62 0-14-14Z" fill="#c8952d" fill-opacity=".42"/>
+  </g>
+  <g fill="#2b1b0a" fill-opacity=".23">
+    <path d="M90 94c52-31 99-22 138 26-37 18-82 16-135-5z"/>
+    <path d="M472 236c61-42 119-33 174 28-53 31-104 29-152-7z"/>
+    <path d="M284 306c43-19 82-13 117 18-28 26-66 29-113 8z"/>
+  </g>
+</svg>

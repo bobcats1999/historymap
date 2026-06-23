@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>西方历史大网</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="atlas-app controls-collapsed overview-mode" aria-label="西方历史大网">
+    <div class="atlas-bg" aria-hidden="true"></div>
+
+    <header class="top-toolbar" aria-label="博物馆档案导览">
+      <div class="toolbar-title">
+        <p class="eyebrow">Museum Archive · Western History Network</p>
+        <div class="title-row">
+          <h1>西方历史大网</h1>
+          <button id="mobileTitleToggle" class="mobile-title-toggle" type="button" aria-label="展开筛选">▾</button>
+        </div>
+        <div class="toolbar-context" aria-live="polite">
+          <span id="toolbarRoute">整张大网</span>
+          <span id="toolbarEntity">全部政治实体</span>
+          <span id="toolbarRelation">全部关系</span>
+          <span id="toolbarZoom">100%</span>
+          <span id="toolbarSelected">未选择档案</span>
+        </div>
+      </div>
+
+      <div class="toolbar-selects" aria-label="图谱控制">
+        <label>
+          <span>路线</span>
+          <select id="routeSelect">
+            <option value="all">整张大网</option>
+          </select>
+        </label>
+        <label>
+          <span>政治实体</span>
+          <select id="entitySelect">
+            <option value="all">全部政治实体</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="toolbar-actions">
+        <button id="storyEntry" class="story-entry" type="button">开始故事</button>
+        <button id="toggleControls" class="toggle-controls" type="button" aria-expanded="false" aria-controls="filterDrawer">筛选</button>
+      </div>
+    </header>
+
+    <aside id="filterDrawer" class="filter-drawer collapsed" aria-label="关系类型筛选">
+      <div class="drawer-header">
+        <div>
+          <p class="eyebrow">Filter Ledger</p>
+          <h2>探索筛选</h2>
+        </div>
+        <p class="drawer-note">先选一条常用路线，再用关系类型微调地图。</p>
+      </div>
+      <div id="filterRouteQuick" class="filter-route-quick" role="group" aria-label="常用路线"></div>
+      <div class="filter-relation-tier">
+        <p>关系类型</p>
+        <div class="chip-row" role="group" aria-label="关系类型">
+          <button class="chip active" data-filter="all">全部</button>
+          <button class="chip" data-filter="foundation">源头</button>
+          <button class="chip" data-filter="transmission">传播</button>
+          <button class="chip" data-filter="cooperation">合作</button>
+          <button class="chip" data-filter="authorization">授权</button>
+          <button class="chip" data-filter="conflict">冲突</button>
+          <button class="chip" data-filter="split">分裂</button>
+          <button class="chip" data-filter="secularization">世俗化</button>
+          <button class="chip" data-filter="institution">制度</button>
+          <button class="chip" data-filter="expansion">扩张</button>
+          <button class="chip" data-filter="alliance">联盟</button>
+        </div>
+      </div>
+
+      <div class="story-filter-peek-actions" aria-label="故事筛选操作">
+        <p>故事已暂停。轻点一种关系会进入自由探索；也可以收起后继续听故事。</p>
+        <button id="enterFullFilter" type="button">进入完整筛选</button>
+      </div>
+
+      <div class="legend-panel" aria-label="图例">
+        <span><i class="legend-line strong"></i>主干</span>
+        <span><i class="legend-line medium"></i>转折</span>
+        <span><i class="legend-line light"></i>支线</span>
+        <span><i class="legend-dot"></i>事件</span>
+      </div>
+    </aside>
+
+    <section class="network-stage" aria-label="可滚动西方历史关系网">
+      <div class="graph-scroll" tabindex="0" aria-label="西方历史点线关系图，可横向和纵向滚动">
+        <svg id="historyGraph" viewBox="0 0 9800 3140" role="img" aria-labelledby="graphSvgTitle graphSvgDesc">
+          <title id="graphSvgTitle">西方历史点线关系图</title>
+          <desc id="graphSvgDesc">从四大古国到 2026 年的关键历史事件按时间排列，事件之间用粗细不同的线连接。</desc>
+        </svg>
+      </div>
+      <div class="mobile-entry-cover" aria-hidden="true">
+        <p class="eyebrow">Archive Route</p>
+        <h2 id="mobilePreviewTitle">正在打开历史档案主线</h2>
+        <p id="mobilePreviewDescription">从古代法典、信仰与城邦出发，进入西方秩序的第一条阅读路线。</p>
+      </div>
+      <div id="storyFocusHud" class="story-focus-hud" aria-hidden="true"></div>
+    </section>
+
+    <aside id="routeReader" class="route-reader story-guide collapsed" aria-live="polite" aria-label="故事导览面板"></aside>
+
+    <div id="globalMapControls" class="global-map-controls" aria-label="地图快捷控制">
+      <button id="explorePrevEvent" class="explore-nav-button" type="button" aria-label="上一个时间点" hidden>‹</button>
+      <button id="globalStoryEntry" class="global-story-entry" type="button" aria-label="开始或继续故事">▶</button>
+      <button id="globalFilterToggle" class="global-filter-toggle" type="button" aria-label="打开筛选">⌕</button>
+      <button id="globalCenterSelected" class="global-center-selected" type="button" aria-label="回到选中">⌖</button>
+      <button id="globalMusicToggle" class="global-music-toggle" type="button" aria-label="开启背景音乐" disabled>♪</button>
+      <button id="exploreNextEvent" class="explore-nav-button" type="button" aria-label="下一个时间点" hidden>›</button>
+    </div>
+
+    <div id="hoverTooltip" class="hover-tooltip" hidden></div>
+
+    <div id="introModal" class="intro-modal" aria-live="polite" role="dialog" aria-modal="true">
+      <article class="intro-card">
+        <button id="closeIntroModal" class="intro-close" type="button" aria-label="关闭地图介绍" onclick="closeIntroModal()">×</button>
+        <p class="eyebrow">Story Guide · Western History Network</p>
+        <h2>跟着一条故事线进入西方历史</h2>
+        <p>像看一部会移动的历史纪录片：讲到哪里，地图就聚焦到哪里。</p>
+        <div id="introRouteList" class="intro-route-list" aria-label="推荐学习路线"></div>
+        <div class="intro-points" aria-label="可探索内容">
+          <span>故事主线</span>
+          <span>地图聚焦</span>
+          <span>来源阅读</span>
+          <span>自由探索</span>
+        </div>
+        <div class="intro-actions">
+          <button id="startIntroModal" class="intro-primary" type="button">开始故事</button>
+          <button id="continueIntroModal" class="intro-tertiary" type="button" disabled>最近进度</button>
+          <button id="freeExploreIntro" class="intro-secondary" type="button">自由探索</button>
+        </div>
+        <p id="introProgressNote" class="intro-progress-note">还没有保存进度，可以先从第一条故事线开始。</p>
+      </article>
+    </div>
+
+    <div id="pinchGuide" class="pinch-guide" aria-live="polite" hidden>
+      <div class="pinch-guide-card">
+        <button id="closePinchGuide" class="pinch-guide-close" type="button" aria-label="关闭新手指引">×</button>
+        <img src="assets/pinch-zoom-guide.png" alt="" aria-hidden="true">
+        <p>拖动地图浏览，双指捏合缩放</p>
+      </div>
+    </div>
+
+    <div class="rotate-hint" aria-live="polite">
+      <div>
+        <p class="eyebrow">Landscape View</p>
+        <h2>建议横屏浏览</h2>
+        <p>横屏会更适合这张长时间轴地图。你也可以继续竖屏浏览、拖拽和缩放。</p>
+      </div>
+    </div>
+
+    <div class="timeline-ruler" aria-label="当前视角时间刻度与中国朝代参照">
+      <div class="timeline-title">时间参照 · 中国朝代</div>
+      <div id="timelineTicks" class="timeline-ticks"></div>
+    </div>
+    <div id="timeFocusToast" class="time-focus-toast" role="status" aria-live="polite" hidden></div>
+
+    <div class="zoom-controls" aria-label="缩放控制">
+      <button id="zoomIn" type="button" aria-label="放大" title="放大（+）">+</button>
+      <button id="zoomOut" type="button" aria-label="缩小" title="缩小（-）">−</button>
+      <button id="zoomReset" type="button" aria-label="重置缩放" title="重置缩放（0）">100%</button>
+      <button id="centerSelected" type="button" aria-label="回到选中" title="回到选中"><span class="desktop-label">回到选中</span><span class="mobile-icon" aria-hidden="true">⌖</span></button>
+    </div>
+
+    <aside id="detailPanel" class="detail-panel collapsed" aria-live="polite">
+      <div class="detail-header">
+        <div>
+          <p class="eyebrow" id="detailKind">总览</p>
+          <h2 id="detailTitle">点击一个点或一条线</h2>
+          <div id="detailBadges" class="detail-badges" aria-label="档案标签"></div>
+        </div>
+        <button id="closeDetail" class="close-detail" aria-label="收起详情">×</button>
+      </div>
+      <div class="detail-body">
+        <section class="archive-section summary-section">
+          <h3>摘要</h3>
+          <p id="detailSummary">事件、人物、国家影响和导览路线都已经融入这张网。选择任意节点或连线即可在这里查看细节。</p>
+        </section>
+        <div id="detailVisuals" class="detail-visuals" aria-label="事件视觉辅助"></div>
+        <div id="detailMeta" class="detail-meta"></div>
+        <div class="embedded-impact archive-section">
+          <h3>相关影响</h3>
+          <p id="matrixLead">点击事件后显示不同国家/政权受到的影响。</p>
+          <div id="impactMatrix" class="impact-grid"></div>
+        </div>
+      </div>
+    </aside>
+
+    <div id="routeCards" hidden></div>
+  </main>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

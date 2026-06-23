@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" role="img" aria-labelledby="title desc">
+  <title id="title">皇冠与王权插画</title>
+  <desc id="desc">古金色皇冠和深色背景的王权主题插画。</desc>
+  <rect width="900" height="420" fill="#1a1208"/>
+  <circle cx="450" cy="210" r="158" fill="#c8952d" fill-opacity=".12"/>
+  <path d="M206 287l55-170 105 122 84-153 89 153 101-122 55 170z" fill="#c8952d"/>
+  <path d="M226 287h448v56H226z" fill="#6d441a"/>
+  <path d="M250 315h400" stroke="#f0cf72" stroke-width="6"/>
+  <g fill="#f0cf72">
+    <circle cx="261" cy="117" r="18"/>
+    <circle cx="450" cy="86" r="18"/>
+    <circle cx="640" cy="117" r="18"/>
+    <circle cx="366" cy="239" r="14"/>
+    <circle cx="539" cy="239" r="14"/>
+  </g>
+  <g fill="none" stroke="#e8dfbd" stroke-opacity=".22">
+    <circle cx="450" cy="210" r="196"/>
+    <circle cx="450" cy="210" r="228"/>
+    <path d="M90 210h720M450 20v380"/>
+  </g>
+</svg>
