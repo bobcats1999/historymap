@@ -34,11 +34,11 @@ import {
 } from "./story-camera.mjs";
 
 const backgroundMusic = {
-  src: "assets/audio/history-theme.mp3",
-  title: "History Theme",
-  author: "User-provided licensed track",
-  license: "Pending rights-cleared asset",
-  attribution: "Add track attribution in assets/audio/LICENSE.md before publishing music."
+  src: "assets/audio/epic-cinematic.mp3",
+  title: "Epic Cinematic",
+  author: "AlexGrohl",
+  license: "User-provided track",
+  attribution: "Epic Cinematic · AlexGrohl"
 };
 
 const entities = {
@@ -154,16 +154,16 @@ const entityFlags = {
 };
 
 const typeIcons = {
-  ancient: "◈",
-  classical: "🏛",
+  ancient: "◆",
+  classical: "▲",
   religion: "✚",
   monarchy: "♛",
-  revolution: "⚖",
-  modern: "◎",
-  conflict: "⚔",
-  expansion: "⛵",
+  revolution: "✦",
+  modern: "●",
+  conflict: "×",
+  expansion: "→",
   institution: "§",
-  alliance: "◍",
+  alliance: "∞",
   split: "◇"
 };
 
@@ -627,6 +627,7 @@ let previousStoryEventId = null;
 let storyAutoTimer = null;
 let timeFocusToastTimer = null;
 let backgroundAudio = null;
+let audioUnlockedByUser = false;
 let completedEventIds = new Set();
 let completedQuizIds = new Set();
 const progressStorageKey = "westernHistoryProgress";
@@ -663,6 +664,7 @@ const chineseDynasties = [
 function init() {
   window.closeIntroModal = closeIntroModal;
   initializeBackgroundAudio();
+  installFirstInteractionAudioUnlock();
   syncMobileViewportInsets();
   loadProgress();
   uiState = updateStateViewport(uiState, currentViewportState());
@@ -1330,6 +1332,7 @@ function startOrContinueStory() {
 function startRoute(routeId) {
   const route = routes[routeId];
   if (!route) return;
+  unlockBackgroundAudioFromUserGesture();
   stopStoryAutoplay();
   closeIntroModal();
   window.clearTimeout(overviewAutoTimer);
@@ -1439,6 +1442,7 @@ function initializeBackgroundAudio() {
   backgroundAudio.loop = true;
   backgroundAudio.preload = "metadata";
   backgroundAudio.volume = 0;
+  uiState.audio = resolveAudioAvailability(uiState.audio, true);
   backgroundAudio.addEventListener("error", () => {
     uiState.audio = resolveAudioAvailability(uiState.audio, false);
     renderRouteReader();
@@ -1457,8 +1461,26 @@ function initializeBackgroundAudio() {
   }
 }
 
+function installFirstInteractionAudioUnlock() {
+  window.addEventListener("pointerdown", unlockBackgroundAudioFromUserGesture, { once: true, capture: true, passive: true });
+  window.addEventListener("keydown", unlockBackgroundAudioFromUserGesture, { once: true, capture: true });
+}
+
+function unlockBackgroundAudioFromUserGesture() {
+  if (audioUnlockedByUser || !backgroundAudio) return;
+  audioUnlockedByUser = true;
+  uiState.audio = {
+    ...uiState.audio,
+    enabled: true,
+    muted: false,
+    hasTriedToLoad: true
+  };
+  syncUIFromState();
+}
+
 function toggleBackgroundMusic() {
   if (!uiState.audio?.licenseReady) return;
+  audioUnlockedByUser = true;
   uiState.audio = toggleAudioMuted(uiState.audio);
   renderRouteReader();
   syncUIFromState();
@@ -1503,9 +1525,9 @@ function syncGlobalMusicControl() {
     globalMusicToggle.hidden = !ready && !hasMobileShortcuts;
     globalMusicToggle.disabled = !ready;
     globalMusicToggle.classList.toggle("active", ready && !muted);
-    globalMusicToggle.textContent = muted ? "♪" : "♫";
-    globalMusicToggle.setAttribute("aria-label", muted ? "开启背景音乐" : "关闭背景音乐");
-    globalMusicToggle.title = ready ? backgroundMusic.attribution : "添加已授权音乐后可开启";
+    globalMusicToggle.textContent = muted ? "♪" : "Ⅱ";
+    globalMusicToggle.setAttribute("aria-label", muted ? "播放音乐" : "暂停音乐");
+    globalMusicToggle.title = ready ? (muted ? "播放音乐" : "暂停音乐") : "音乐加载中";
   }
   [globalStoryEntry, globalFilterToggle, globalCenterSelected].forEach((button) => {
     if (button) button.hidden = !hasMobileShortcuts;
@@ -1535,8 +1557,8 @@ function syncBackgroundAudio() {
   const playResult = backgroundAudio.play();
   if (playResult?.catch) {
     playResult.catch(() => {
-      uiState.audio = { ...uiState.audio, muted: true };
       renderRouteReader();
+      syncGlobalMusicControl();
     });
   }
 }
@@ -1578,6 +1600,7 @@ function renderRouteReader() {
   const scene = storySceneForEvent(item, route, activeRouteStep);
   const whyItMatters = scene.whyItMatters || whyMattersForEvent(item);
   const isPlaying = Boolean(uiState.story?.isPlaying);
+  const musicMuted = uiState.audio?.muted !== false;
   const expanded = Boolean(uiState.panels.routeReaderExpanded);
   const progress = ((activeRouteStep + 1) / route.eventIds.length) * 100;
   routeReader.innerHTML = `
@@ -1617,7 +1640,7 @@ function renderRouteReader() {
     <div class="route-reader-secondary">
       <button type="button" data-route-action="whole-map">自由探索</button>
       <button class="route-reset" type="button">重新开始</button>
-      <button type="button" data-route-action="music-info">音乐授权</button>
+      <button type="button" data-route-action="music-toggle" ${uiState.audio?.licenseReady ? "" : "disabled"}>${musicMuted ? "播放音乐" : "暂停音乐"}</button>
     </div>
     <p class="music-license-note">${backgroundMusic.attribution}</p>
   `;
@@ -1629,9 +1652,7 @@ function renderRouteReader() {
   routeReader.querySelector('[data-route-action="next"]')?.addEventListener("click", nextRouteStep);
   routeReader.querySelector('[data-route-action="play"]')?.addEventListener("click", toggleStoryAutoplay);
   routeReader.querySelector('[data-route-action="expand"]')?.addEventListener("click", toggleStoryPanelExpanded);
-  routeReader.querySelector('[data-route-action="music-info"]')?.addEventListener("click", () => {
-    routeReader.querySelector(".music-license-note")?.classList.toggle("visible");
-  });
+  routeReader.querySelector('[data-route-action="music-toggle"]')?.addEventListener("click", toggleBackgroundMusic);
   routeReader.querySelector('[data-route-action="whole-map"]')?.addEventListener("click", () => {
     exitRouteReader();
   });
@@ -2122,10 +2143,10 @@ function tagList(items) {
 }
 
 function iconForEvent(item) {
-  if (item.type === "conflict") return "⚔";
-  if (item.type === "expansion") return "⛵";
+  if (item.type === "conflict") return "×";
+  if (item.type === "expansion") return "→";
   if (item.type === "institution") return "§";
-  if (item.type === "alliance") return "◍";
+  if (item.type === "alliance") return "∞";
   if (item.type === "split") return "◇";
   return typeIcons[item.layer] || typeIcons[item.type] || "●";
 }
@@ -2531,6 +2552,7 @@ function renderStoryFocusHud(eventId) {
   storyFocusHud.innerHTML = `
     <div class="story-focus-core"></div>
     <div class="story-focus-halo"></div>
+    <div class="story-focus-icon">${iconForEvent(item)}</div>
     <div class="story-year-badge">${formatYear(item.year)}</div>
   `;
   storyFocusHud.classList.add("visible");

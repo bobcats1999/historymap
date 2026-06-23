@@ -20,6 +20,7 @@ assert.match(html, /id="exploreNextEvent"/, "focused event navigation should exp
 
 assert.match(script, /story-control-dock/, "story reader should render a persistent icon control dock");
 assert.match(script, /story-why-it-matters/, "story reader should render a why-this-matters line");
+assert.match(script, /<div class="story-focus-icon">\$\{iconForEvent\(item\)\}<\/div>/, "story focus HUD should keep the current event icon visible above cinematic overlays");
 assert.ok(
   script.indexOf("story-control-dock") < script.indexOf("<article class=\"route-current\">"),
   "story controls should render before the story copy so mobile users can always reach them"
@@ -34,11 +35,15 @@ assert.match(script, /globalStoryEntry\?\.addEventListener\("click",/, "bottom s
 assert.match(script, /globalCenterSelected\?\.addEventListener\("click", centerOnSelected\)/, "bottom return shortcut should center the current selection");
 assert.match(script, /\.global-map-controls/, "bottom shortcuts should be excluded from map drag/collapse handling");
 assert.match(script, /globalMusicToggle\?\.addEventListener\("click", toggleBackgroundMusic\)/, "global music button should control background music");
+assert.match(script, /src: "assets\/audio\/epic-cinematic\.mp3"/, "provided background music should be the bundled audio source");
+assert.match(script, /function installFirstInteractionAudioUnlock\(\)/, "background music should unlock from the first user interaction");
+assert.match(script, /window\.addEventListener\("pointerdown", unlockBackgroundAudioFromUserGesture, \{ once: true, capture: true, passive: true \}\)/, "first pointer interaction should start music within browser autoplay rules");
 assert.match(script, /function navigateExploreEvent\(delta\)/, "free exploration should support previous and next focused event navigation");
 assert.match(script, /function routeContextForEvent\(eventId\)/, "event navigation should derive a route context for the selected event");
 assert.match(script, /aria-label="\$\{isPlaying \? "暂停故事" : "播放故事"\}"/, "play button should have a clear accessible label");
 assert.match(script, /resolveAudioAvailability\(uiState\.audio, false\)/, "missing audio should resolve to a safe unavailable state");
 assert.match(script, /window\.fetch\(backgroundMusic\.src, \{ method: "HEAD" \}\)/, "audio availability should be detected without autoplay");
+assert.match(script, /data-route-action="music-toggle"[\s\S]*?\$\{musicMuted \? "播放音乐" : "暂停音乐"\}/, "story panel music button should use playback wording instead of license wording");
 assert.match(script, /let mobileFitPreviewTimer = null;/, "mobile fit preview should be managed by a dismiss timer");
 assert.match(script, /window\.setTimeout\(dismissMobileFitPreview, 2800\)/, "mobile fit preview notice should auto-dismiss after a short pause");
 assert.match(script, /function syncMobileViewportInsets\(\)/, "mobile browser chrome should feed a dynamic bottom inset");
@@ -51,6 +56,10 @@ assert.match(css, /\.filter-relation-tier/, "relation chips should sit in a seco
 assert.match(css, /\.time-focus-toast/, "time selection feedback should have a non-blocking toast style");
 assert.match(css, /\.story-why-it-matters/, "story panel should style the why-this-matters line");
 assert.match(css, /\.story-mode \.event-node\.story-current/, "current story event should have stronger cinematic emphasis");
+assert.match(css, /\.story-mode \.event-node\.story-current \.node-icon \{\n[\s\S]*?font-size: calc\(27px \/ var\(--zoom-level\)\);/, "current story event icon should stay visible and enlarged");
+assert.match(css, /\.story-focus-icon \{\n[\s\S]*?font-size: 1\.58rem;/, "story focus HUD icon should provide a visible enlarged marker");
+assert.match(css, /@keyframes storyIconBloom/, "current story icon should animate smoothly when a scene changes");
+assert.match(css, /@keyframes storyIconRetreat/, "previous story icon should shrink smoothly when focus moves on");
 assert.match(css, /\.story-mode \.event-node\.story-muted/, "non-current story events should be visibly de-emphasized");
 assert.match(css, /\.intro-card \{\n[\s\S]*?max-height: calc\(100dvh - 48px\);/, "intro card should stay inside short desktop and mobile viewports");
 assert.match(css, /\.intro-modal:not\(\[hidden\]\) ~ \.timeline-ruler/, "intro modal should hide the background timeline to avoid visual overlap");
@@ -70,12 +79,14 @@ assert.match(css, /\.story-mode \.route-reader \{\n[\s\S]*?grid-template-rows: a
 assert.match(css, /\.story-panel-mini \.route-reader \{\n[\s\S]*?overflow: auto;/, "mobile story reader should scroll instead of clipping controls and text");
 assert.match(css, /\.story-panel-mini \.route-reader \{\n[\s\S]*?min-height: 306px;/, "mobile mini story panel should have enough height for controls, summary, and why-it-matters copy");
 assert.match(css, /\.story-mode \.route-current \{\n[\s\S]*?overflow: auto;/, "story text area should support vertical scrolling for lower content");
-assert.match(css, /\.story-panel-mini \.route-current \{\n[\s\S]*?overflow: hidden;/, "mobile mini story summary should not create an inner scrollbar over the text");
+assert.match(css, /\.story-panel-mini \.route-current \{\n[\s\S]*?max-height: 116px;[\s\S]*?overflow: auto;/, "mobile mini story summary should support vertical scrolling without pushing controls");
 assert.match(css, /\.story-panel-mini \.story-expanded-copy \{\n[\s\S]*?display: none;/, "expanded story copy should not participate in the mobile mini layout");
 assert.match(css, /\.pinch-guide \{\n[\s\S]*?place-items: end center;/, "mobile pinch guide should behave like a bottom hint instead of a blocking modal");
 assert.match(css, /\.pinch-guide \{\n[\s\S]*?pointer-events: none;/, "mobile pinch guide shell should not block the map");
 assert.match(css, /\.pinch-guide-card img \{\n[\s\S]*?display: none;/, "mobile pinch guide should not spend the first viewport on an illustration card");
 assert.match(css, /-webkit-line-clamp: 2;/, "mobile story mini summary should preserve at least two readable lines");
+assert.match(css, /\.mobile-low-zoom \.event-node text:not\(\.node-icon\)/, "mobile low zoom should hide event text labels and keep map structure readable");
+assert.match(css, /\.mobile-low-zoom \.link-label/, "mobile low zoom should remove link labels to reduce text noise");
 assert.match(css, /\.story-mode\.detail-open \.route-reader \{\n[\s\S]*?min-height: 46px;/, "detail-open story reader should collapse into a return capsule");
 assert.match(css, /\.story-mode\.detail-open \.route-current/, "detail-open story reader should hide story copy behind the detail panel");
 assert.match(css, /\.story-mode\.route-reader-open \.global-map-controls \{\n[\s\S]*?display: none;/, "story mode should not float global map controls above the story sheet");
