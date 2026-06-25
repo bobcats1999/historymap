@@ -3,6 +3,6 @@
   "scripts": {
     "dev": "python3 -m http.server 8011 --bind 127.0.0.1",
     "check": "node --check script.js",
-    "test": "node --check script.js && node tests/story-mode.test.mjs && node tests/mobile-story-portrait.test.mjs && node tests/mobile-story-ui-static.test.mjs && node tests/story-content.test.mjs && node tests/story-camera.test.mjs && node tests/ui-state-machine.test.mjs && node tests/graph-scope.test.mjs && node tests/mobile-panel-priority.test.mjs && node tests/route-reader-exit.test.mjs && node tests/persistence.test.mjs && node tests/learning-data.test.mjs && node tests/route-reader-state.test.mjs && node tests/mobile-entry-source.test.mjs"
+    "test": "node --check script.js && node tests/story-mode.test.mjs && node tests/mobile-story-portrait.test.mjs && node tests/mobile-story-ui-static.test.mjs && node tests/story-content.test.mjs && node tests/story-camera.test.mjs && node tests/ui-state-machine.test.mjs && node tests/graph-scope.test.mjs && node tests/mobile-panel-priority.test.mjs && node tests/route-reader-exit.test.mjs && node tests/persistence.test.mjs && node tests/learning-data.test.mjs && node tests/route-reader-state.test.mjs && node tests/mobile-entry-source.test.mjs && node tests/gsap-animation.test.mjs"
   }
 }

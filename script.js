@@ -636,6 +636,41 @@ const mobileReadableZoom = 0.24;
 const zoomMin = 0.1;
 const zoomMax = 1.85;
 const zoomStep = 0.12;
+let storyCameraTween = null;
+let overviewZoomTween = null;
+let exploreCameraTween = null;
+let globalMapControlsTween = null;
+let lastGlobalMapControlsHidden = globalMapControls?.hidden ?? true;
+
+function getGsap() {
+  return globalThis.gsap || null;
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+}
+
+function killStoryCameraTween() {
+  storyCameraTween?.kill();
+  storyCameraTween = null;
+}
+
+function killOverviewZoomTween() {
+  overviewZoomTween?.kill();
+  overviewZoomTween = null;
+}
+
+function killExploreCameraTween() {
+  exploreCameraTween?.kill();
+  exploreCameraTween = null;
+}
+
+function syncAnimationCapabilityState() {
+  const app = document.querySelector(".atlas-app");
+  if (!app) return;
+  app.classList.toggle("gsap-ready", Boolean(getGsap()));
+  app.classList.toggle("reduced-motion", prefersReducedMotion());
+}
 
 const chineseDynasties = [
   { from: -3000, to: -2070, label: "史前 / 传说时代" },
@@ -663,6 +698,7 @@ const chineseDynasties = [
 
 function init() {
   window.closeIntroModal = closeIntroModal;
+  syncAnimationCapabilityState();
   initializeBackgroundAudio();
   installFirstInteractionAudioUnlock();
   syncMobileViewportInsets();
@@ -1542,7 +1578,61 @@ function syncGlobalMusicControl() {
     globalFilterToggle.setAttribute("aria-label", open ? "收起筛选" : "打开筛选");
   }
   const hasExploreNav = globalMapControls.classList.contains("explore-nav-visible");
-  globalMapControls.hidden = !hasMobileShortcuts && !ready && !hasExploreNav;
+  syncGlobalMapControlsMotion(!hasMobileShortcuts && !ready && !hasExploreNav);
+}
+
+function syncGlobalMapControlsMotion(shouldHide) {
+  if (!globalMapControls) return;
+  const gsap = getGsap();
+  if (!gsap || prefersReducedMotion()) {
+    globalMapControlsTween?.kill();
+    globalMapControlsTween = null;
+    globalMapControls.hidden = shouldHide;
+    globalMapControls.style.removeProperty("opacity");
+    globalMapControls.style.removeProperty("visibility");
+    globalMapControls.style.removeProperty("transform");
+    lastGlobalMapControlsHidden = shouldHide;
+    return;
+  }
+  if (shouldHide === lastGlobalMapControlsHidden && globalMapControls.hidden === shouldHide) return;
+  globalMapControlsTween?.kill();
+  lastGlobalMapControlsHidden = shouldHide;
+  if (shouldHide) {
+    globalMapControlsTween = gsap.to(globalMapControls, {
+      autoAlpha: 0,
+      y: 8,
+      duration: 0.18,
+      ease: "power2.in",
+      overwrite: true,
+      onComplete() {
+        globalMapControls.hidden = true;
+        globalMapControlsTween = null;
+        gsap.set(globalMapControls, { clearProps: "opacity,visibility,transform" });
+      },
+      onInterrupt() {
+        globalMapControlsTween = null;
+      }
+    });
+    return;
+  }
+  globalMapControls.hidden = false;
+  globalMapControlsTween = gsap.fromTo(globalMapControls, {
+    autoAlpha: 0,
+    y: 8
+  }, {
+    autoAlpha: 1,
+    y: 0,
+    duration: 0.24,
+    ease: "power3.out",
+    overwrite: true,
+    onComplete() {
+      globalMapControlsTween = null;
+      gsap.set(globalMapControls, { clearProps: "opacity,visibility,transform" });
+    },
+    onInterrupt() {
+      globalMapControlsTween = null;
+    }
+  });
 }
 
 function syncBackgroundAudio() {
@@ -2058,6 +2148,7 @@ function setMobilePreviewText(title, description) {
 
 function exitOverviewMode() {
   if (!overviewMode) return false;
+  killOverviewZoomTween();
   overviewMode = false;
   dismissMobileFitPreview();
   document.querySelector(".atlas-app")?.classList.remove("overview-mode", "mobile-entry-preview", "mobile-entry-zooming", "mobile-fit-preview");
@@ -2411,7 +2502,8 @@ function focusExploreEvent(eventId, animated = true) {
       filterOpen: uiState.panels.filterOpen
     })
   });
-  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches || !animated) {
+  if (prefersReducedMotion() || !animated) {
+    killExploreCameraTween();
     setZoom(target.zoom);
     scroller.scrollLeft = target.left;
     scroller.scrollTop = target.top;
@@ -2423,33 +2515,49 @@ function focusExploreEvent(eventId, animated = true) {
 function animateExploreCamera(target) {
   const scroller = document.querySelector(".graph-scroll");
   if (!scroller || !target) return;
-  const startZoom = zoomLevel;
-  const startLeft = scroller.scrollLeft;
-  const startTop = scroller.scrollTop;
-  const duration = 620;
-  const startAt = performance.now();
-  document.querySelector(".atlas-app")?.classList.add("explore-camera-moving");
-
-  const tick = (now) => {
-    const progress = Math.min(1, (now - startAt) / duration);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    zoomLevel = Number((startZoom + (target.zoom - startZoom) * eased).toFixed(3));
-    applyZoom(zoomLevel);
-    scroller.scrollLeft = startLeft + (target.left - startLeft) * eased;
-    scroller.scrollTop = startTop + (target.top - startTop) * eased;
-    updateTimelineRuler();
-    if (progress < 1) {
-      requestAnimationFrame(tick);
-      return;
-    }
-    zoomLevel = target.zoom;
-    applyZoom(zoomLevel);
+  const gsap = getGsap();
+  const app = document.querySelector(".atlas-app");
+  if (!gsap || prefersReducedMotion()) {
+    setZoom(target.zoom);
     scroller.scrollLeft = target.left;
     scroller.scrollTop = target.top;
-    document.querySelector(".atlas-app")?.classList.remove("explore-camera-moving");
+    updateTimelineRuler();
+    return;
+  }
+  killExploreCameraTween();
+  const cameraState = {
+    zoom: zoomLevel,
+    left: scroller.scrollLeft,
+    top: scroller.scrollTop
   };
-
-  requestAnimationFrame(tick);
+  app?.classList.add("explore-camera-moving");
+  exploreCameraTween = gsap.to(cameraState, {
+    zoom: target.zoom,
+    left: target.left,
+    top: target.top,
+    duration: 0.62,
+    ease: "power3.out",
+    overwrite: true,
+    onUpdate() {
+      zoomLevel = Number(cameraState.zoom.toFixed(3));
+      applyZoom(zoomLevel);
+      scroller.scrollLeft = cameraState.left;
+      scroller.scrollTop = cameraState.top;
+      updateTimelineRuler();
+    },
+    onComplete() {
+      exploreCameraTween = null;
+      zoomLevel = target.zoom;
+      applyZoom(zoomLevel);
+      scroller.scrollLeft = target.left;
+      scroller.scrollTop = target.top;
+      app?.classList.remove("explore-camera-moving");
+    },
+    onInterrupt() {
+      exploreCameraTween = null;
+      app?.classList.remove("explore-camera-moving");
+    }
+  });
 }
 
 function focusStoryScene(eventId, previousEventId = null, animated = true) {
@@ -2457,7 +2565,8 @@ function focusStoryScene(eventId, previousEventId = null, animated = true) {
   if (!item) return;
   const targetZoom = storyTargetZoom();
   const target = storyCameraTargetForEvent(eventId, targetZoom);
-  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches || !animated) {
+  if (prefersReducedMotion() || !animated) {
+    killStoryCameraTween();
     setZoom(targetZoom);
     const scroller = document.querySelector(".graph-scroll");
     if (scroller && target) {
@@ -2503,42 +2612,90 @@ function animateStoryCamera(eventId, previousEventId, target) {
   const scroller = document.querySelector(".graph-scroll");
   const item = eventById[eventId];
   if (!scroller || !item || !target) return;
+  const gsap = getGsap();
+  if (!gsap || prefersReducedMotion()) {
+    setZoom(target.zoom);
+    scroller.scrollLeft = target.left;
+    scroller.scrollTop = target.top;
+    renderStoryFocusHud(eventId);
+    updateTimelineRuler();
+    return;
+  }
+  killStoryCameraTween();
   uiState = setStoryTransitioning(uiState, true);
   const transitionId = uiState.story.transitionId;
   syncUIFromState();
-  const startZoom = zoomLevel;
-  const startLeft = scroller.scrollLeft;
-  const startTop = scroller.scrollTop;
   const duration = uiState.story?.isPlaying ? 1100 : 900;
-  const startAt = performance.now();
+  const cameraState = {
+    zoom: zoomLevel,
+    left: scroller.scrollLeft,
+    top: scroller.scrollTop
+  };
   renderStoryFocusHud(eventId);
 
-  const tick = (now) => {
-    if (uiState.story.transitionId !== transitionId) return;
-    const progress = Math.min(1, (now - startAt) / duration);
-    const eased = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-    zoomLevel = Number((startZoom + (target.zoom - startZoom) * eased).toFixed(3));
-    applyZoom(zoomLevel);
-    scroller.scrollLeft = startLeft + (target.left - startLeft) * eased;
-    scroller.scrollTop = startTop + (target.top - startTop) * eased;
-    positionStoryFocusHud(eventId);
-    updateTimelineRuler();
-    if (progress < 1) {
-      requestAnimationFrame(tick);
-      return;
+  storyCameraTween = gsap.to(cameraState, {
+    zoom: target.zoom,
+    left: target.left,
+    top: target.top,
+    duration: duration / 1000,
+    ease: "power3.inOut",
+    overwrite: true,
+    onUpdate() {
+      if (uiState.story.transitionId !== transitionId) {
+        killStoryCameraTween();
+        return;
+      }
+      zoomLevel = Number(cameraState.zoom.toFixed(3));
+      applyZoom(zoomLevel);
+      scroller.scrollLeft = cameraState.left;
+      scroller.scrollTop = cameraState.top;
+      positionStoryFocusHud(eventId);
+      updateTimelineRuler();
+    },
+    onComplete() {
+      if (uiState.story.transitionId !== transitionId) return;
+      storyCameraTween = null;
+      scroller.scrollLeft = target.left;
+      scroller.scrollTop = target.top;
+      zoomLevel = target.zoom;
+      applyZoom(zoomLevel);
+      positionStoryFocusHud(eventId);
+      uiState = setStoryTransitioning(uiState, false);
+      syncUIFromState();
+      renderGraph();
+      renderStoryFocusHud(eventId);
+    },
+    onInterrupt() {
+      storyCameraTween = null;
     }
-    scroller.scrollLeft = target.left;
-    scroller.scrollTop = target.top;
-    zoomLevel = target.zoom;
-    applyZoom(zoomLevel);
-    positionStoryFocusHud(eventId);
-    uiState = setStoryTransitioning(uiState, false);
-    syncUIFromState();
-    renderGraph();
-    renderStoryFocusHud(eventId);
-  };
+  });
+}
 
-  requestAnimationFrame(tick);
+function animateStoryFocusHud() {
+  if (!storyFocusHud || prefersReducedMotion()) return;
+  const gsap = getGsap();
+  if (!gsap) return;
+  const hudParts = storyFocusHud.querySelectorAll(".story-focus-core, .story-focus-halo, .story-focus-icon, .story-year-badge");
+  gsap.killTweensOf([storyFocusHud, ...hudParts]);
+  gsap.fromTo(storyFocusHud, {
+    autoAlpha: 0
+  }, {
+    autoAlpha: 1,
+    duration: 0.36,
+    ease: "power3.out",
+    overwrite: true
+  });
+  gsap.fromTo(hudParts, {
+    autoAlpha: 0,
+    scale: 0.82
+  }, {
+    autoAlpha: 1,
+    scale: 1,
+    duration: 0.42,
+    ease: "back.out(1.45)",
+    stagger: 0.035,
+    overwrite: true
+  });
 }
 
 function renderStoryFocusHud(eventId) {
@@ -2557,12 +2714,16 @@ function renderStoryFocusHud(eventId) {
   `;
   storyFocusHud.classList.add("visible");
   positionStoryFocusHud(eventId);
+  animateStoryFocusHud();
 }
 
 function clearStoryFocusHud() {
   if (!storyFocusHud) return;
+  getGsap()?.killTweensOf([storyFocusHud, ...storyFocusHud.querySelectorAll("*")]);
   storyFocusHud.innerHTML = "";
   storyFocusHud.classList.remove("visible");
+  storyFocusHud.style.removeProperty("opacity");
+  storyFocusHud.style.removeProperty("visibility");
   const app = document.querySelector(".atlas-app");
   app?.style.removeProperty("--story-focus-x");
   app?.style.removeProperty("--story-focus-y");
@@ -2615,6 +2776,8 @@ function enableDragPan() {
     if (introAutoPending && Date.now() < introInteractionLockUntil) return false;
     userMovedMap = true;
     introAutoPending = false;
+    killExploreCameraTween();
+    killStoryCameraTween();
     window.clearTimeout(overviewAutoTimer);
     exitOverviewMode();
     collapseControlsOnMobile();
@@ -3014,40 +3177,56 @@ function animateZoomToEvent(eventId, targetZoom, horizontalRatio = 0.5, duration
   const item = eventById[eventId];
   if (!scroller || !item) return;
   const app = document.querySelector(".atlas-app");
+  const gsap = getGsap();
   if (app?.classList.contains("mobile-entry-preview")) {
     app.classList.add("mobile-entry-zooming");
   }
-  const startZoom = zoomLevel;
-  const startLeft = scroller.scrollLeft;
-  const startTop = scroller.scrollTop;
   const pos = eventPositions.get(eventId) || { x: timeToX(item.year), y: regions[item.layer].top };
-  const startAt = Date.now();
-
-  const tick = () => {
-    const progress = Math.min(1, (Date.now() - startAt) / duration);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    const currentZoom = startZoom + (targetZoom - startZoom) * eased;
-    zoomLevel = Number(currentZoom.toFixed(3));
-    document.querySelector(".atlas-app")?.style.setProperty("--overview-secondary-opacity", String(eased));
-    applyZoom(zoomLevel);
-    const targetLeft = Math.max(0, pos.x * zoomLevel - scroller.clientWidth * horizontalRatio);
-    const targetTop = Math.max(0, pos.y * zoomLevel - scroller.clientHeight * 0.52);
-    scroller.scrollLeft = startLeft + (targetLeft - startLeft) * eased;
-    scroller.scrollTop = startTop + (targetTop - startTop) * eased;
-
-    if (progress < 1) {
-      requestAnimationFrame(tick);
-      return;
-    }
+  if (!gsap || prefersReducedMotion()) {
     exitOverviewMode();
     app?.style.removeProperty("--overview-secondary-opacity");
     app?.classList.remove("mobile-entry-preview", "mobile-entry-zooming");
     setZoom(targetZoom);
     centerOnEvent(eventId, horizontalRatio);
     showLandscapeHint();
-  };
+    return;
+  }
 
-  requestAnimationFrame(tick);
+  killOverviewZoomTween();
+  const zoomState = {
+    zoom: zoomLevel,
+    left: scroller.scrollLeft,
+    top: scroller.scrollTop,
+    reveal: 0
+  };
+  overviewZoomTween = gsap.to(zoomState, {
+    zoom: targetZoom,
+    reveal: 1,
+    duration: duration / 1000,
+    ease: "power3.out",
+    overwrite: true,
+    onUpdate() {
+      zoomLevel = Number(zoomState.zoom.toFixed(3));
+      applyZoom(zoomLevel);
+      const targetLeft = Math.max(0, pos.x * zoomLevel - scroller.clientWidth * horizontalRatio);
+      const targetTop = Math.max(0, pos.y * zoomLevel - scroller.clientHeight * 0.52);
+      scroller.scrollLeft = zoomState.left + (targetLeft - zoomState.left) * zoomState.reveal;
+      scroller.scrollTop = zoomState.top + (targetTop - zoomState.top) * zoomState.reveal;
+      app?.style.setProperty("--overview-secondary-opacity", String(zoomState.reveal));
+    },
+    onComplete() {
+      overviewZoomTween = null;
+      exitOverviewMode();
+      app?.style.removeProperty("--overview-secondary-opacity");
+      app?.classList.remove("mobile-entry-preview", "mobile-entry-zooming");
+      setZoom(targetZoom);
+      centerOnEvent(eventId, horizontalRatio);
+      showLandscapeHint();
+    },
+    onInterrupt() {
+      overviewZoomTween = null;
+    }
+  });
 }
 
 function showLandscapeHint() {

@@ -77,7 +77,7 @@ assert.match(css, /bottom: calc\(10px \+ var\(--mobile-bottom-clearance\)\)/, "s
 assert.match(css, /\.global-map-controls/, "global map controls should have a dedicated floating layer");
 assert.match(css, /\.global-map-controls button\[hidden\]/, "hidden global navigation buttons should not be forced visible by button display styles");
 assert.match(css, /\.global-map-controls\[hidden\]/, "empty global control shells should not remain visible");
-assert.match(script, /globalMapControls\.hidden = !hasMobileShortcuts && !ready && !hasExploreNav;/, "global control shell should remain mobile-first without adding desktop clutter");
+assert.match(script, /syncGlobalMapControlsMotion\(!hasMobileShortcuts && !ready && !hasExploreNav\);/, "global control shell should remain mobile-first without adding desktop clutter");
 assert.match(css, /\.story-mode \.route-reader \{\n[\s\S]*?grid-template-rows: auto auto auto auto auto minmax\(0, 1fr\);/, "mobile story reader should reserve fixed rows for title/progress/buttons before scrollable copy");
 assert.match(css, /\.story-panel-mini \.route-reader \{\n[\s\S]*?overflow: auto;/, "mobile story reader should scroll instead of clipping controls and text");
 assert.match(css, /\.story-panel-mini \.route-reader \{\n[\s\S]*?min-height: 306px;/, "mobile mini story panel should have enough height for controls, summary, and why-it-matters copy");

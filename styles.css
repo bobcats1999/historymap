@@ -258,6 +258,7 @@ button {
   background: rgba(20, 19, 16, 0.78);
   padding: 6px;
   pointer-events: auto;
+  will-change: transform, opacity;
 }
 
 .global-map-controls[hidden] {
@@ -1439,6 +1440,7 @@ option {
   pointer-events: none;
   opacity: 0;
   transition: opacity 220ms ease;
+  will-change: transform, opacity;
 }
 
 .story-focus-hud.visible {
